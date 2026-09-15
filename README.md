@@ -66,7 +66,7 @@ aws eks update-kubeconfig --name $(terraform output -raw eks_cluster_name)
 kubectl apply -f ../../fiap-TC1-oficina/k8s
 ```
 
-O job `validate` do CI/CD (`terraform fmt` + `terraform validate`, com uma policy IAM vazia só para o parser não quebrar) roda em todo push/PR sem precisar de credenciais AWS. O job `apply` só roda quando a variável de repositório `DEPLOY_TO_AWS=true` estiver configurada — hoje ainda não está, porque a conta AWS do desafio está pendente de liberação de crédito pela FIAP. Segredos/variáveis necessários para habilitar: secrets `AWS_ROLE_ARN` (OIDC) e `DATADOG_API_KEY`; variável `AWS_REGION`.
+O job `validate` do CI/CD (`terraform fmt` + `terraform validate`) roda em todo push/PR sem precisar de credenciais AWS. O job `apply` só roda quando a variável de repositório `DEPLOY_TO_AWS=true` estiver configurada. Segredos/variáveis necessários para habilitar: secrets `AWS_ROLE_ARN` (OIDC) e `DATADOG_API_KEY`; variável `AWS_REGION`. Ver a seção "AWS Academy Learner Lab" acima sobre por que esse job de CI não é usável no ambiente deste desafio, e como o deploy real foi feito.
 
 Branch `main` protegida, merge só via Pull Request; push em `main` aplica em produção, push em `homologacao` aplica em homologação.
 
