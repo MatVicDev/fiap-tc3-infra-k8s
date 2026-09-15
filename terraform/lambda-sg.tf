@@ -2,8 +2,9 @@
 # porque é um recurso de rede, e este repositório já é o dono da VPC. Publicado
 # via SSM para o repositório da Lambda consumir.
 resource "aws_security_group" "lambda_auth" {
-  name        = "fiap-tc3-lambda-auth-${var.ambiente}"
-  description = "Egress da Lambda de autenticação por CPF (RDS + Secrets Manager via NAT)"
+  name = "fiap-tc3-lambda-auth-${var.ambiente}"
+  # SecurityGroup description só aceita ASCII na API do EC2 — sem acentos aqui.
+  description = "Egress da Lambda de autenticacao por CPF (RDS + Secrets Manager via NAT)"
   vpc_id      = aws_vpc.oficina.id
 
   egress {

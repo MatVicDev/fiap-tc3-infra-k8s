@@ -17,7 +17,6 @@ Este repositório é o **dono da rede**: cria a VPC, subnets públicas/privadas 
 | Node Group gerenciado (autoscaling 2–5 nós) | Escalabilidade de capacidade, complementar ao HPA da aplicação |
 | AWS Load Balancer Controller (Helm) | Expõe a aplicação via ALB a partir de um `Service`/`Ingress` do Kubernetes |
 | Datadog Agent (Helm, DaemonSet) | Métricas de nós/pods, logs e APM — consome os traces do `dd-java-agent` embarcado na imagem da aplicação |
-| IRSA (IAM Roles for Service Accounts) | Permissões de nuvem por Service Account, sem credenciais estáticas nos pods |
 | GitHub Actions | CI/CD |
 
 ## Arquitetura
@@ -45,16 +44,20 @@ flowchart TB
 
 ## Deploy
 
-Pré-requisitos: conta AWS, `terraform` >= 1.5, `helm`/`kubectl` (para inspeção pós-deploy), e a policy oficial do AWS Load Balancer Controller salva em `terraform/iam/alb-controller-policy.json` (ver [`terraform/iam/README.md`](./terraform/iam/README.md)).
+Pré-requisitos: conta AWS, `terraform` >= 1.5, `helm`/`kubectl` (para inspeção pós-deploy).
 
 ```bash
-curl -o terraform/iam/alb-controller-policy.json \
-  https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/main/docs/install/iam_policy.json
-
 cd terraform
 terraform init
 terraform apply -var="ambiente=homologacao" -var="datadog_api_key=<sua-chave-datadog>"
 ```
+
+### AWS Academy Learner Lab
+
+Este projeto roda hoje em uma conta do AWS Academy Learner Lab (usada pela FIAP), que impõe duas restrições que moldam este repositório:
+
+- **Sem `iam:CreateRole`/`iam:AttachRolePolicy`/OIDC provider**: só é permitido `iam:PassRole` para a role pré-existente `LabRole`. Por isso o cluster EKS, o node group e o AWS Load Balancer Controller usam a `LabRole` diretamente (via IMDS com hop-limit 2, ver `eks.tf`/`alb-controller.tf`) em vez de roles dedicadas + IRSA.
+- **Credenciais de sessão temporárias (~4h, via Vocareum "AWS Details")**: não há como o job `apply` do CI/CD assumir uma role via OIDC do GitHub Actions (exigiria criar role/OIDC provider, também bloqueado). Na prática, `terraform apply` é rodado localmente a cada sessão do lab, com as credenciais copiadas do painel do Learner Lab.
 
 Depois de aplicado, exporte o kubeconfig para aplicar os manifestos da aplicação (repositório `fiap-TC1-oficina`):
 

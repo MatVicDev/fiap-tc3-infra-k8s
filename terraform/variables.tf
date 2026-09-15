@@ -46,7 +46,8 @@ variable "node_desired_size" {
 }
 
 variable "datadog_api_key" {
-  description = "API key do Datadog — vem de secrets.DATADOG_API_KEY no pipeline, nunca commitada"
+  description = "API key do Datadog — vem de secrets.DATADOG_API_KEY no pipeline, nunca commitada. Vazia desativa o Datadog Agent (helm_release.datadog)."
   type        = string
   sensitive   = true
+  default     = ""
 }

@@ -24,7 +24,6 @@ jobs:
         working-directory: terraform
         run: |
           terraform fmt -check -recursive
-          echo '{"Version":"2012-10-17","Statement":[]}' > iam/alb-controller-policy.json
           terraform init -backend=false
           terraform validate
 
@@ -38,11 +37,6 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
-
-      - name: Baixar policy oficial do AWS Load Balancer Controller
-        run: |
-          curl -o terraform/iam/alb-controller-policy.json \
-            https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/main/docs/install/iam_policy.json
 
       - name: Configurar credenciais AWS
         uses: aws-actions/configure-aws-credentials@v4
